@@ -1,14 +1,8 @@
 import scrapy
 import json
 
-from harvesters.spiders.base import (
-    DefaultPaginatedSpiderMixin,
-    StopPaginationException
-)
-
 
 class JustjoinitSpider(
-    DefaultPaginatedSpiderMixin,
     scrapy.Spider
 ):
     name = 'justjoinit'
@@ -22,8 +16,10 @@ class JustjoinitSpider(
             link = "https://justjoin.it/offers/" + offer.get('id')
             job_name = offer.get('title')
             company = offer.get('company_name')
+            skills = list(offer.get('skills'))
             yield {
                 "link": link,
                 "job_name": job_name,
-                "company": company
+                "company": company,
+                "skills": {item['name']: item['level'] for item in skills}
             }
