@@ -4,9 +4,22 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from dataclasses import dataclass
+from enum import Enum
+
+from uuid import UUID
 
 
-class HarvestersItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class JobPlatforms(Enum):
+    NOFLUFFJOBS = 1
+    JUSTJOINIT = 2
+
+
+@dataclass
+class JobOffer:
+    title: str
+    skills: list
+    url: str
+    description: str
+    platform: JobPlatforms
+    uuid: UUID
