@@ -1,21 +1,14 @@
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-
-from dataclasses import asdict
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-from database.db import conn
+from database.exceptions import ValidationError
 
 
 class HarvestersPipeline:
 
     def process_item(self, item, spider):
-        # TODO accept only english job offers
-        existing_entry = conn.collection.find_one({"uuid": item.uuid})
-        if existing_entry:
-            return item
+        # Save only valid items into database
+        try:
+            item.insert_into_db()
+        except ValidationError as e:
+            # TODO - add logging here u dummy!
+            ...
 
-        conn.collection.insert_one(asdict(item))
         return item
