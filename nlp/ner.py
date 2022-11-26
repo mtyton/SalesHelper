@@ -21,18 +21,27 @@ class NERScore:
     ents_per_type: Dict[str, Dict[str, float]]
 
     def __eq__(self, other: object):
-        """
-        This has to be overriden because we want to optimize using f-score value.
-        """
         return self.ents_f == other.ents_f
 
+    def __gt__(self, other: object):
+        return self.ents_f > other.ents_f
+
+    def __ge__(self, other: object):
+        return self.ents_f >= other.ents_f
+
+    def __lt__(self, other: object):
+        return self.ents_f < other.ents_f
+
+    def __le__(self, other: object):
+        return self.ents_f <= other.ents_f
+    
 
 class NER:
     
     def _load_spacy_model(self):
         # TODO - allow settings those model in settings
-        if os.path.isfile(f"{DIR_PATH}/models/current_model"):
-            return spacy.load(f"{DIR_PATH}/models/current_model")
+        if os.path.isfile(f"{DIR_PATH}/models/best_model"):
+            return spacy.load(f"{DIR_PATH}/models/best_model")
         else:
             return spacy.load("en_core_web_sm")
 
@@ -45,7 +54,7 @@ class NER:
         self._train_dataset, self._test_dataset = split_data(data)
         self.other_pipes = [pipe for pipe in self.nlp.pipe_names if pipe != "ner"]
         self.ner_pipe = self.nlp.get_pipe("ner")
-        self.initial_score = self.evaluate_model()["ents_f"]
+        self.initial_score = self.evaluate_model()
         # self.score = self.evaluate_model()
 
     def train(self, n_iter: int = 5) -> None:

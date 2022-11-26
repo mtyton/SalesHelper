@@ -133,3 +133,4 @@ data/*.json
 
 # local folder
 datasets/*
+nlp/models/*
