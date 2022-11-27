@@ -10,7 +10,7 @@ from enum import Enum
 from uuid import UUID
 
 from database.db import conn
-from database.exceptions import ValidationError
+from harvesters.exceptions import ValidationError
 from nlp.tools import detect_description_language
 
 

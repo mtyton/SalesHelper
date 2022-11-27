@@ -8,7 +8,10 @@ from dataclasses import dataclass
 from spacy.tokens import DocBin
 from spacy.training.example import Example
 from parsers.ner_parser import load_and_preprocess
-from nlp import DIR_PATH
+from settings import (
+    MODEL_PATHS,
+    TRAINING_DATA_FILENAME
+)
 from nlp.tools import split_data
 from tqdm import tqdm
 
@@ -38,19 +41,22 @@ class NERScore:
 
 class NER:
     
-    def _load_spacy_model(self):
-        # TODO - allow settings those model in settings
-        if os.path.isfile(f"{DIR_PATH}/models/best_model"):
-            return spacy.load(f"{DIR_PATH}/models/best_model")
+    def _load_spacy_model(self, use_latest: bool=False):
+        # By default we use best model not the latest model.
+        if use_latest and os.path.isfile(MODEL_PATHS["LATEST_MODEL"]):
+            return spacy.load(MODEL_PATHS["LATEST_MODEL"])
+
+        if os.path.isfile(MODEL_PATHS["BEST_MODEL"]):
+            return spacy.load(MODEL_PATHS["BEST_MODEL"])
         else:
             return spacy.load("en_core_web_sm")
 
-    def __init__(self) -> None:
+    def __init__(self, use_latest: bool=False) -> None:
         # first load the proper model
         self.nlp = self._load_spacy_model()
         self.db = DocBin
         # TODO - fix this (filename)
-        data = load_and_preprocess("all.jsonl")
+        data = load_and_preprocess(TRAINING_DATA_FILENAME)
         self._train_dataset, self._test_dataset = split_data(data)
         self.other_pipes = [pipe for pipe in self.nlp.pipe_names if pipe != "ner"]
         self.ner_pipe = self.nlp.get_pipe("ner")
@@ -74,6 +80,7 @@ class NER:
                         losses = self.nlp.update(
                             [example], losses=losses, drop=0.2
                         )
+                # TODO - stop prinring losses, add logging single loss
                 print(losses)
 
     def evaluate_model(self):
@@ -95,8 +102,8 @@ class NER:
     
     def save_model(self):
         if self.initial_score < self.evaluate_model():
-            self.nlp.to_disk(f"{DIR_PATH}/models/best_model")
-        self.nlp.to_disk(f"{DIR_PATH}/models/current_model")
+            self.nlp.to_disk(MODEL_PATHS["BEST_MODEL"])
+        self.nlp.to_disk(MODEL_PATHS["LATEST_MODEL"])
 
     def predict(self, text):
         doc = self.nlp(text)
