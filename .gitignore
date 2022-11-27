@@ -130,3 +130,7 @@ dmypy.json
 
 # local data
 data/*.json
+
+# local folder
+datasets/*
+nlp/models/*
