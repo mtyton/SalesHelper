@@ -1,4 +1,4 @@
-from database.exceptions import ValidationError
+from harvesters.exceptions import ValidationError
 
 
 class HarvestersPipeline:

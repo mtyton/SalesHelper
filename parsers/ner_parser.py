@@ -7,7 +7,7 @@ from typing import (
     Tuple
 )
 
-from parsers import DIR_PATH
+from settings import PARSABLE_DATA_DIR
 
 
 NER_DATA = List[Tuple[str, Dict[str, List[Tuple[int, int, str]]]]]
@@ -67,7 +67,7 @@ def _dataframe_to_ner_format(df) -> NER_DATA:
 
 def load_and_preprocess(filename: str) -> NER_DATA:
     df = pd.DataFrame(columns=["text", "entities"])
-    with open(f"{DIR_PATH}/parsable_data/{filename}") as f:
+    with open(f"{PARSABLE_DATA_DIR}/{filename}") as f:
         for line in f.readlines():
             line = json.loads(line)
             line_data = pd.DataFrame({
