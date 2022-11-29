@@ -7,7 +7,7 @@ from typing import (
     Tuple
 )
 
-from settings import PARSABLE_DATA_DIR
+from parsers.settings import PARSABLE_DATA_DIR
 
 
 NER_DATA = List[Tuple[str, Dict[str, List[Tuple[int, int, str]]]]]

@@ -24,7 +24,7 @@ class Connection:
 
     @property
     def collection(self):
-        return self.database[settings["COLLECTIOn"]]
+        return self.database[settings["COLLECTION"]]
 
 
 conn = Connection()

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from spacy.tokens import DocBin
 from spacy.training.example import Example
 from parsers.ner_parser import load_and_preprocess
-from settings import (
+from nlp.settings import (
     MODEL_PATHS,
     TRAINING_DATA_FILENAME
 )
@@ -43,10 +43,10 @@ class NER:
     
     def _load_spacy_model(self, use_latest: bool=False):
         # By default we use best model not the latest model.
-        if use_latest and os.path.isfile(MODEL_PATHS["LATEST_MODEL"]):
+        if use_latest and os.path.isdir(MODEL_PATHS["LATEST_MODEL"]):
             return spacy.load(MODEL_PATHS["LATEST_MODEL"])
 
-        if os.path.isfile(MODEL_PATHS["BEST_MODEL"]):
+        if os.path.isdir(MODEL_PATHS["BEST_MODEL"]):
             return spacy.load(MODEL_PATHS["BEST_MODEL"])
         else:
             return spacy.load("en_core_web_sm")
