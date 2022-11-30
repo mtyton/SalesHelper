@@ -53,15 +53,13 @@ class NER:
 
     def __init__(self, use_latest: bool=False) -> None:
         # first load the proper model
-        self.nlp = self._load_spacy_model()
-        self.db = DocBin
-        # TODO - fix this (filename)
+        self.nlp = self._load_spacy_model(use_latest)
         data = load_and_preprocess(TRAINING_DATA_FILENAME)
         self._train_dataset, self._test_dataset = split_data(data)
         self.other_pipes = [pipe for pipe in self.nlp.pipe_names if pipe != "ner"]
         self.ner_pipe = self.nlp.get_pipe("ner")
         self.initial_score = self.evaluate_model()
-        # self.score = self.evaluate_model()
+        self.current_score = None
 
     def train(self, n_iter: int = 5) -> None:
         # First add entities to NER model
@@ -82,6 +80,8 @@ class NER:
                         )
                 # TODO - stop prinring losses, add logging single loss
                 print(losses)
+        # by the end of the training run evaluation
+        self.evaluate_model()
 
     def evaluate_model(self):
         """
@@ -98,10 +98,14 @@ class NER:
                 example.predicted = self.nlp(doc.text)
         
             examples.append(example)
-        return NERScore(**scorer.score_spans(examples, "ents"))
-    
+        self.current_score = NERScore(**scorer.score_spans(examples, "ents"))
+        return self.current_score
+
     def save_model(self):
-        if self.initial_score < self.evaluate_model():
+        if not self.current_score:
+            self.evaluate_model()
+
+        if self.initial_score < self.current_score:
             self.nlp.to_disk(MODEL_PATHS["BEST_MODEL"])
         self.nlp.to_disk(MODEL_PATHS["LATEST_MODEL"])
 
