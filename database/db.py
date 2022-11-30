@@ -3,19 +3,15 @@ from pymongo import MongoClient
 from database.settings import DATABASE_SETTINGS as settings
 
 
-# TODO - this should be singleton
 class Connection:
 
-    def read_config(self) -> dict:
-        ...
-
     def __init__(self) -> None:
-        self.host = settings["MONGODB_HOST"]
-        self.port = settings["MONGODB_PORT"]
-        # TODO move credintials to env
+        self.host = settings["HOST"]
+        self.port = settings["PORT"]
         self._client = MongoClient(
             self.host, self.port,
-            username="root", password="password"
+            username=settings["USER"], 
+            password=settings["PASSWORD"]
         )
 
     @property
@@ -24,11 +20,11 @@ class Connection:
 
     @property
     def database(self):
-        return self.client[settings["MONGODB_DB"]]
+        return self.client[settings["DB"]]
 
     @property
     def collection(self):
-        return self.database[settings["MONGODB_COLLECTION"]]
+        return self.database[settings["COLLECTION"]]
 
 
 conn = Connection()
