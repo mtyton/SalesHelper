@@ -2,4 +2,5 @@
 #
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
-from harvesters.spiders.nofluffjobs import NofluffjobsSpider
+from .nofluffjobs import NofluffjobsSpider
+from .justjoinit import JustjoinitSpider
