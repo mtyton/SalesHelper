@@ -1,14 +1,16 @@
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 
-from harvesters.spiders import (
-    NofluffjobsSpider
+from harvesters.harvesters.spiders import (
+    NofluffjobsSpider,
+    JustjoinitSpider
 )
-from harvesters import settings as my_settings
+from harvesters.harvesters import settings as my_settings
 
 
 SPIDERS_CLASSES = [
-    NofluffjobsSpider
+    NofluffjobsSpider,
+    JustjoinitSpider
 ]
 
 
