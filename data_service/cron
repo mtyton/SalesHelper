@@ -1,0 +1,2 @@
+
+40 11,15,19,1 * * * python3 /data/harvesters/harvest.py nofluffjobs >> /var/log/cron.log 2>&1
