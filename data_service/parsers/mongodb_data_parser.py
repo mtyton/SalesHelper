@@ -8,8 +8,6 @@ from parsers.settings import DIR_PATH
 
 
 def load_from_db_and_preprocess() -> np.chararray:
-    # TODO - update each record, that it has been already processed
-    # ignore processed records on input
     query = {"lang": "EN"}
     number_of_records = conn.raw_data.count_documents(query)
     data = np.chararray(number_of_records, itemsize=5000, unicode=True)
