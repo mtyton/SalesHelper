@@ -20,6 +20,7 @@ class Client:
 
 
 class DataServiceClient(Client):
+    # TODO - change for docker
     target_host = "127.0.0.1"
     target_port = "5000"
 
