@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 from uuid import UUID
+from typing import List
 
 
-class RawEntryResponseModel(BaseModel):
+@dataclass
+class RawEntryResponseModel:
     title: str
     skills: list
     url: str
@@ -12,7 +14,28 @@ class RawEntryResponseModel(BaseModel):
     lang: str = None
 
 
-class NlpProcessedRequestData(BaseModel):
+@dataclass
+class NlpProcessedData:
     text: str
     uuid: UUID
     ents: list
+
+    @classmethod
+    def from_db_instance(cls, instance):
+        data = {
+            "text": instance["text"],
+            "uuid": instance["tre"],
+            "ents": instance.ents
+        }
+        return cls(**data)
+
+
+@dataclass
+class DoccanoAnnotatedData:
+    text: str
+    entities: List[dict]
+
+
+@dataclass
+class TrainingData:
+    ...
