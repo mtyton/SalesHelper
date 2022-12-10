@@ -28,14 +28,3 @@ class NlpProcessedData:
             "ents": instance.ents
         }
         return cls(**data)
-
-
-@dataclass
-class DoccanoAnnotatedData:
-    text: str
-    entities: List[dict]
-
-
-@dataclass
-class TrainingData:
-    ...

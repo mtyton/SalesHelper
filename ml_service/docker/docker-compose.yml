@@ -1,0 +1,19 @@
+version: '3.1'
+services:
+  ml:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5002:5002"
+    restart: always 
+    container_name: ml_service
+    volumes: 
+      - ../:/app
+
+volumes:
+  ml_data: {}
+
+networks:
+  default:
+    name: mongodb_network
