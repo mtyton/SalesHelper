@@ -27,7 +27,7 @@ def parse_data_to_doccano_format(data):
         parsed_ents = []
         text, ents = d
         for ent in ents:
-            parsed_ent = [ent.start_char, ent.end_char, ent.label_]
+            parsed_ent = [ent[0], ent[1], ent[2]]
             parsed_ents.append(parsed_ent)
         parsed_data.append({"text": text, "label": parsed_ents})
     return parsed_data

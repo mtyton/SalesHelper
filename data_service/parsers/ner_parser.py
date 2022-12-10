@@ -26,7 +26,7 @@ def __preprocess_data(data: pd.Series) -> pd.Series:
         parsed_entities.append((start, end, label))
     return pd.Series({"text": text, "entities": parsed_entities})
 
-# TODO - remove overlaping entities
+
 def _remove_overlaping_ents(entities: NER_DATA) -> NER_DATA:
     parsed_entities = []
     for x, ent1 in enumerate(entities):
