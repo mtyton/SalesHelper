@@ -134,6 +134,7 @@ data/*.json
 # local folder
 data_service/datasets/*
 ml_service/nlp/models/*
-data_service/docker/mongodb_data/*
-data_service/parsers/doccano_export/*
+mongodb_data/*
 data_service/parsers/parsable_data/*
+data_service/parsers/doccano_export/*
+postgres/*

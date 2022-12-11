@@ -16,4 +16,5 @@ volumes:
 
 networks:
   default:
-    name: mongodb_network
+    external:
+      name: sales-helper-network

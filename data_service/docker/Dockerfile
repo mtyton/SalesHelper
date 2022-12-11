@@ -15,11 +15,3 @@ ENV PYTHONPATH "${PYTHONPATH}:/data"
 # run cronjobs
 RUN apt-get install -y cron vim
 
-COPY ./cron /etc/cron.d/harvesters
-RUN chmod 0644 /etc/cron.d/harvesters
-RUN touch /var/log/cron.log
-
-RUN crontab /etc/cron.d/harvesters
-
-# run api
-CMD ["python3", "api/main.py"]

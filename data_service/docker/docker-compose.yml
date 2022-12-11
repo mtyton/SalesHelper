@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb_data:/data/db
+      - ../../mongodb_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
@@ -33,13 +33,25 @@ services:
       - "5000:5000"
     restart: always 
     container_name: data_service
+    command: python3 api/main.py
     volumes: 
       - ../:/data
+
+  crawler:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - "mongodb"
+    restart: always
+    container_name: crawler
+    command: python3 harvesters/harvest.py nofluffjobs
 
 volumes:
   mongodb_data: {}
   data_service_data: {}
 
-networks: 
+networks:
   default:
-    name: mongodb_network
+    external:
+      name: sales-helper-network

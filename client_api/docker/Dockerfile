@@ -13,6 +13,3 @@ RUN pip install -r requirements.txt
 ENV PYTHONPATH "${PYTHONPATH}:/data"
 # run cronjobs
 RUN apt-get install -y cron vim
-
-# run api
-CMD ["python3", "main.py"]

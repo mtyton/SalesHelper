@@ -20,8 +20,7 @@ class Client:
 
 
 class DataServiceClient(Client):
-    # TODO - change for docker
-    target_host = "127.0.0.1"
+    target_host = "data_service"
     target_port = "5000"
 
     def get_and_preproces_raw_data(self):
