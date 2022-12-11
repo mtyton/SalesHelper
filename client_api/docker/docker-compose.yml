@@ -9,6 +9,8 @@ services:
     container_name: db
     ports:
       - "5432:5432"
+    volumes:
+      - ../../postgres:/var/lib/postgresql/data
   web:
     build:
       context: ../
@@ -21,17 +23,17 @@ services:
     volumes:
       - ../:/app
     container_name: website_api
+    command: python3 main.py
     environment:
       - DB_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - DB_HOST=${DB_HOST}
-    stdin_open: true # für pdb
-    tty: true # für pdb
 
 volumes:
   website_api_data: {}
 
 networks:
   default:
-    name: mongodb_network
+    external:
+      name: sales-helper-network

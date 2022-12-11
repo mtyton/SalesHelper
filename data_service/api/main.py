@@ -9,8 +9,7 @@ from bson.binary import Binary
 from database.db import conn
 from api.models import (
     RawEntryResponseModel,
-    NlpProcessedData,
-    DoccanoAnnotatedData
+    NlpProcessedData
 )
 from parsers.mongodb_data_parser import parse_data_to_doccano_format
 
