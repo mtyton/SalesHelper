@@ -14,8 +14,9 @@ source .env
 docker-compose -f client_api/docker/docker-compose.yml --env-file=.env build --no-cache
 docker-compose -f client_api/docker/docker-compose.yml --env-file=.env up -d
 
+docker-compose -f ml_service/docker/docker-compose.yml --env-file=.env build --no-cache
+docker-compose -f ml_service/docker/docker-compose.yml --env-file=.env up -d
+
 docker-compose -f data_service/docker/docker-compose.yml --env-file=.env build --no-cache
 docker-compose -f data_service/docker/docker-compose.yml --env-file=.env up -d
 
-docker-compose -f ml_service/docker/docker-compose.yml --env-file=.env build --no-cache
-docker-compose -f ml_service/docker/docker-compose.yml --env-file=.env up -d

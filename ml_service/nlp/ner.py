@@ -2,17 +2,23 @@
 import spacy
 import os
 import random
+import datetime
+import json
 
 from typing import Dict
-from dataclasses import dataclass
+from dataclasses import (
+    dataclass, 
+    asdict
+)
 from spacy.tokens import DocBin
 from spacy.training.example import Example
-from nlp.settings import (
+from settings import (
     MODEL_PATHS,
-    TRAINING_DATA_FILENAME
+    training_logger,
+    evaluate_logger
 )
 from nlp.tools import split_data
-from tqdm import tqdm
+from client.main import dt_client
 
 
 @dataclass
@@ -53,39 +59,47 @@ class NER:
     def __init__(self, use_latest: bool=False) -> None:
         # first load the proper model
         self.nlp = self._load_spacy_model(use_latest)
-        # TODO - this should be done otherwise
-        data = [] # load_and_preprocess(TRAINING_DATA_FILENAME)
+        data = dt_client.get_training_data()
         self._train_dataset, self._test_dataset = split_data(data)
         self.other_pipes = [pipe for pipe in self.nlp.pipe_names if pipe != "ner"]
         self.ner_pipe = self.nlp.get_pipe("ner")
-        self.initial_score = self.evaluate_model()
+        self.initial_score = self.evaluate_model(save_score=False)
         self.current_score = None
+
+    _get_step_loss = lambda prev_losses, curr_losses: curr_losses["ner"] - prev_losses["ner"]
 
     def train(self, n_iter: int = 5) -> None:
         # First add entities to NER model
+        training_logger.info(
+            f"Training started at: {datetime.datetime.now()}, number of steps: {n_iter}"
+        )
         data = self._train_dataset
         for _, annotations in data:
             for ent in annotations.get("entities"):
                 self.ner_pipe.add_label(ent[2])
         random.shuffle(data)
         with self.nlp.disable_pipes(*self.other_pipes):
-            losses = {}
-            for _ in range(n_iter):
+            prev_losses = curr_losses = {"ner": 0.0}
+            for step in range(n_iter):
                 for batch in spacy.util.minibatch(data, size=2):
                     for text, annotations in batch:
                         doc = self.nlp.make_doc(text)
                         example = Example.from_dict(doc, annotations)
-                        losses = self.nlp.update(
-                            [example], losses=losses, drop=0.2
+                        curr_losses = self.nlp.update(
+                            [example], losses=curr_losses, drop=0.2
                         )
-                # TODO - stop prinring losses, add logging single loss
-                print(losses)
+                    
+                training_logger.info(
+                    f"Step number: {step}, loss: {self._get_step_loss(prev_losses, curr_losses)}"
+                )
+                curr_losses = prev_losses
         # by the end of the training run evaluation
         self.evaluate_model()
 
-    def evaluate_model(self):
+    def evaluate_model(self, save_score=True):
         """
         Returning score for our model
+        * save_score - determines if score should be save to local variable
         """
         examples = []
         scorer = spacy.scorer.Scorer()
@@ -98,8 +112,13 @@ class NER:
                 example.predicted = self.nlp(doc.text)
         
             examples.append(example)
-        self.current_score = NERScore(**scorer.score_spans(examples, "ents"))
-        return self.current_score
+        score = NERScore(**scorer.score_spans(examples, "ents"))
+        if save_score:
+            evaluate_logger.info(
+                f"NER score: {json.dumps(asdict(score))}"
+            )
+            self.current_score = score
+        return score
 
     def save_model(self):
         if not self.current_score:
