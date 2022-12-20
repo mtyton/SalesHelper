@@ -14,7 +14,3 @@ def split_data(data: NER_DATA, split_ratio: float = 0.8) -> Tuple[NER_DATA, NER_
     number_of_data = len(data)
     split_point = int(number_of_data * split_ratio)
     return data[:split_point], data[split_point:]
-
-
-def verify_missaligned_ents(data):
-    ...

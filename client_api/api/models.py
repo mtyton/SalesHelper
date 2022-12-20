@@ -26,7 +26,7 @@ class DatabaseRequestMixin:
     _model: Base = None
 
     def map_to_database_fields(self, db: Session):
-        raise NotImplemented
+        ...
 
     def save_to_db(self, db: Session):
         data = self.map_to_database_fields(db=db)

@@ -1,5 +1,6 @@
 # This module contains NER data parsers
 import json
+import re
 import pandas as pd
 from typing import (
     List, 
@@ -11,24 +12,35 @@ from parsers.settings import PARSABLE_DATA_DIR
 
 
 NER_DATA = List[Tuple[str, Dict[str, List[Tuple[int, int, str]]]]]
+ALLOWED_ENT_LABELS = ['Skill', 'Position', 'Experience', 'Education']
 
 
 def __preprocess_data(data: pd.Series) -> pd.Series:
     parsed_entities = []
     text = data["text"]
+    invalid_span_tokens = re.compile(r'\s')
+
     for ent in data["entities"]:
         start, end, label = ent
-        # TODO check if start, and end are in the text
-        while text[start+1] == "\s":
-            start += 1
-        while text[end-1] == "\s":
-            end -= 1
-        parsed_entities.append((start, end, label))
+        label = label.title()
+        if label not in ALLOWED_ENT_LABELS:
+            raise ValueError(f"Not allowed entity label: {label}")
+        if start < 0:
+            start = 0
+        if end > len(text):
+            end = len(text)
+        valid_start = start
+        valid_end = end
+        while valid_start < len(text) and invalid_span_tokens.match(
+                text[valid_start]):
+            valid_start += 1
+        while valid_end > 1 and invalid_span_tokens.match(
+                text[valid_end - 1]):
+            valid_end -= 1
+        parsed_entities.append((valid_start, valid_end, label))
     return pd.Series({"text": text, "entities": parsed_entities})
 
-
 def _remove_overlaping_ents(entities: NER_DATA) -> NER_DATA:
-    parsed_entities = []
     for x, ent1 in enumerate(entities):
         ent1_start, ent1_end, _ = ent1
         copied_entities = entities[:x] + entities[x+1:]
@@ -47,12 +59,14 @@ def _remove_overlaping_ents(entities: NER_DATA) -> NER_DATA:
 
 def _parse_entities(entities: List[Dict]) -> Tuple[str, int, int]:
     parsed_entities = []
+    existing_labels = []
     for ent in entities:
         parsed_entities.append((
             ent["start_offset"], 
             ent["end_offset"], 
             ent["label"]
         ))
+        
     return _remove_overlaping_ents(parsed_entities)
 
 def _dataframe_to_ner_format(df) -> NER_DATA:

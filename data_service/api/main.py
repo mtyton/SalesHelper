@@ -1,5 +1,6 @@
 import uvicorn
 import json
+from dataclasses import asdict
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from typing import List
@@ -29,7 +30,7 @@ def save_doccano_data(data: List[NlpProcessedData]):
     for d in data:
         existing_entry = conn.doccano_data.find_one({"uuid":  Binary.from_uuid(d.uuid)})
         if not existing_entry:
-            row_data = d.dict()
+            row_data = asdict(d)
             row_data["uuid"] = Binary.from_uuid(row_data["uuid"])
             conn.doccano_data.insert_one(row_data)
             counter += 1
@@ -46,11 +47,16 @@ def export_doccano_data():
     
 
 @app.get("/data/raw", response_model=List[RawEntryResponseModel])
-def get_raw_data():
+def get_raw_data(number_of_records: int = None):
     # TODO - add filtering
-    # TODO - add pagination
     query = {"lang": "EN"}
-    queryset = conn.raw_data.find(query)
+    if not number_of_records:
+        queryset = conn.raw_data.find(query)
+    else:
+        queryset = conn.raw_data.aggregate([
+            { "$match": query },
+            { "$sample": { "size": number_of_records}}
+        ])
     response_data = []
     for elem in queryset:
         response_data.append(RawEntryResponseModel(**elem))
