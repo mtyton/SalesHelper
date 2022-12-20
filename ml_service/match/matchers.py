@@ -15,7 +15,8 @@ PARSED_ENTITY_TYPE = List[Tuple(str, str)]
 
 @dataclass
 class Match:
-    ...
+    matching_skills: List[str]
+    match_ratio: float
 
 
 class Matcher:
@@ -48,16 +49,29 @@ class Matcher:
         document = self.ner.predict(text)
         return [(ent.text, ent.label_) for ent in document.ents]
         
-    def _get_skills_matching(self, text_entities, job_offer_entities):
-        ...
+    def _get_skills_matching(self, resume_entities, job_offer_entities):
+        resume_skill_entities = self._filter_entities(resume_entities, desired_enttity_types=["Skill"])
+        offer_skill_entities = self._filter_entities(job_offer_entities, desired_enttity_types=["Skill"])
+        resume_skill_entities = [skill[0] for skill in resume_skill_entities]
+        offer_skill_entities = [skill[0] for skill in offer_skill_entities]
+        number_of_matched_ents = 0
+        matched_skills = []
+        for skill in offer_skill_entities:
+            if skill in resume_skill_entities:
+                matched_skills.append(skill)
+                number_of_matched_ents += 1
+        return matched_skills, float(number_of_matched_ents/len(offer_skill_entities))
+
 
     def _get_single_offer_matching(self, resume, offer):
-        entities_matching_rate = self._get_entities_matching()
+        resume_ents = self._extract_entities(resume)
+        offer_ents = self._extract_entities(offer)
+        matching_skills, match_ratio = self._get_skills_matching(resume_ents, offer_ents)
+        return Match(matching_skills=matching_skills, match_ratio=match_ratio)
 
-    def get_best_matches(self, resume):
+    def get_best_matches(self, resume) -> List[Match]:
         offers = dt_client.get_filtered_raw_data(number_of_records=20)
         matches = []
         for offer in offers:
-            ...
-        
-
+            matches.append(self._get_single_offer_matching(resume, offer))
+        return matches

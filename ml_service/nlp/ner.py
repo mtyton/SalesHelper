@@ -66,7 +66,7 @@ class NER:
         self.initial_score = self.evaluate_model(save_score=False)
         self.current_score = None
 
-    _get_step_loss = lambda prev_losses, curr_losses: curr_losses["ner"] - prev_losses["ner"]
+    _get_step_loss = lambda self, prev_losses, curr_losses: curr_losses["ner"] - prev_losses["ner"]
 
     def train(self, n_iter: int = 5) -> None:
         # First add entities to NER model
@@ -79,7 +79,7 @@ class NER:
                 self.ner_pipe.add_label(ent[2])
         random.shuffle(data)
         with self.nlp.disable_pipes(*self.other_pipes):
-            prev_losses = curr_losses = {"ner": 0.0}
+            curr_losses = {"ner": 0.0}
             for step in range(n_iter):
                 for batch in spacy.util.minibatch(data, size=2):
                     for text, annotations in batch:
@@ -88,11 +88,11 @@ class NER:
                         curr_losses = self.nlp.update(
                             [example], losses=curr_losses, drop=0.2
                         )
-                    
+                single_loss = self._get_step_loss({"ner": 0.0}, curr_losses)
                 training_logger.info(
-                    f"Step number: {step}, loss: {self._get_step_loss(prev_losses, curr_losses)}"
+                    f"Step number: {step}, loss: {single_loss}"
                 )
-                curr_losses = prev_losses
+                curr_losses = {"ner": 0.0}
         # by the end of the training run evaluation
         self.evaluate_model()
 

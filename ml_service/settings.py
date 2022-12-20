@@ -15,20 +15,21 @@ def initializeLogger(
     if filename:
         file_handler = logging.FileHandler(f"{DIR_PATH}/{filename}")
         file_handler.setLevel(file_logging_level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelnamehttps://cbbb-89-64-62-54.eu.ngrok.io/docs)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(formatter)
 
         logger.addHandler(file_handler)
+    return logger
 
 # default logger for this package
 default_logger = initializeLogger("mlDebugLogger", filename="ml.log")
 
-training_logger = logging.getLogger(
+training_logger = initializeLogger(
     "nerTrainingLogger", filename="traingHistory.log", 
     file_logging_level=logging.INFO, logger_level=logging.INFO
 )
-evaluate_logger = logging.getLogger(
-    "nerTrainingLogger", filename="evalLogs.log", 
+evaluate_logger = initializeLogger(
+    "nerEvalLogger", filename="evalLogs.log", 
     file_logging_level=logging.INFO, logger_level=logging.INFO
 )
 
