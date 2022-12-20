@@ -24,7 +24,7 @@ class Employee(Base):
 
     @property
     def full_name(self):
-        ...
+        return f"{self.name} {self.surname}"
 
 
 class Resume(Base):

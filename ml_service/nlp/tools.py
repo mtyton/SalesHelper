@@ -6,9 +6,6 @@ from typing import (
 import spacy
 import spacy_fastlang
 
-# TODO - add this typing
-# from parsers.ner_parser import NER_DATA
-
 
 NER_DATA = List[Tuple[str, Dict[str, List[Tuple[int, int, str]]]]] 
 

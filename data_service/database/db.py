@@ -22,7 +22,6 @@ class Connection:
     def database(self):
         return self.client[settings["DB"]]
 
-    # TODO - there should be multiple collections
     @property
     def raw_data(self):
         return self.database[settings["RAW_COLLECTION"]]
