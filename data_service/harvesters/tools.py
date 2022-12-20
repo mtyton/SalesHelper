@@ -4,7 +4,6 @@ import spacy_fastlang  # noqa: F401 # pylint: disable=unused-import
 from typing import Optional
 
 
-# TODO - move this to settings
 MINIMUM_LANGUAGE_SCORE = 0.7
 
 

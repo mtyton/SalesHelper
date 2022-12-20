@@ -89,7 +89,6 @@ class UserInfoCreateRequest(DatabaseRequestMixin, UserInfoBase):
     _model = models.Employee
     
     def map_to_database_fields(self, db: Session):
-        # TODO - try to automate this
         return {
             "name": self.name,
             "surname": self.surname,
@@ -120,7 +119,6 @@ class ResumeCreateRequest(ResumeBase):
     user_id: int
 
     def map_to_database_fields(self, db: Session):
-        # TODO - try to automate this
         employee = db.query(models.Employee).filter(user_id=self.user_id).first()
         return {
             "content": self.content,

@@ -22,7 +22,7 @@ class Connection:
     def database(self):
         return self.client[settings["DB"]]
 
-    # TODO - ADD PARSING!!!
+# TODO - ADD PARSING!!!
     @property
     def raw_data(self):
         return self.database[settings["RAW_COLLECTION"]]
