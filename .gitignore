@@ -132,5 +132,9 @@ dmypy.json
 data/*.json
 
 # local folder
-datasets/*
-nlp/models/*
+data_service/datasets/*
+ml_service/nlp/models/*
+mongodb_data/*
+data_service/parsers/parsable_data/*
+data_service/parsers/doccano_export/*
+postgres/*

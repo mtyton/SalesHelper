@@ -1,0 +1,57 @@
+version: '3.1'
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ../../mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - "mongodb"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+
+  data:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - "mongodb"
+    ports:
+      - "5000:5000"
+    restart: always 
+    container_name: data_service
+    command: python3 api/main.py
+    volumes: 
+      - ../:/data
+
+  crawler:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - "mongodb"
+    restart: always
+    container_name: crawler
+    command: python3 harvesters/harvest.py nofluffjobs
+
+volumes:
+  mongodb_data: {}
+  data_service_data: {}
+
+networks:
+  default:
+    external:
+      name: sales-helper-network
