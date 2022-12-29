@@ -46,6 +46,7 @@ def export_doccano_data():
     return StreamingResponse(generate_data(), media_type="jsonl")
     
 
+# NOTE - this should be used only for training
 @app.get("/data/raw", response_model=List[RawEntryResponseModel])
 def get_raw_data(number_of_records: int = None):
     # TODO - add filtering

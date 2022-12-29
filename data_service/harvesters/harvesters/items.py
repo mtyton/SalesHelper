@@ -11,11 +11,6 @@ from database.exceptions import ValidationError
 from tools import detect_description_language
 
 
-SUPPORTED_OFFERS_LANGUAGES = [
-    "PL", "EN"
-]
-
-
 class JobPlatforms(Enum):
     NOFLUFFJOBS = 1
     JUSTJOINIT = 2
