@@ -10,7 +10,7 @@ from dataclasses import asdict
 
 from database.db import conn
 from database.exceptions import DocumentAlreadyExistsException
-from database.dataclasses import (
+from database.schemas import (
     JobOffer, 
     DoccanoData,
     TrainingData
@@ -27,13 +27,19 @@ class MongoDocumentBase:
             raise ValueError(f"Unknown collection name: {self.collection_name} for MongoDB")
         return getattr(conn, self.collection_name)
 
+    # TODO - add skip, limit test
     def find(
-        self, query: Dict[str, Any], find_one: bool = False
+        self, query: Dict[str, Any], find_one: bool = False,
+        skip: int = None, limit: int = None
     ) -> Union[List[mongo_dataclass], mongo_dataclass]:
         if find_one:
             data = self.collection.find_one(query)
         else:
             data = self.collection.find(query)
+        if skip is not None and not find_one:
+            data = data.skip(skip)
+        if limit is not None and not find_one:
+            data = data.limit(limit)    
         # if nothing has been found, return None
         if data is None:
             return
@@ -70,6 +76,9 @@ class MongoDocumentBase:
         self.validate(instance)
         self.collection.insert_one(instance.get_database_dict())
         return instance
+
+    def count_documents(self, query: Dict[str, Any]):
+        return self.collection.count_documents(query)
 
 
 class JobOfferDocument(MongoDocumentBase):

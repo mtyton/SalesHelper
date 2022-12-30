@@ -13,6 +13,16 @@ class OfferCategories(Enum):
     fullstack = 3
     mobile = 4
 
+    @classmethod
+    def from_text(cls, text: str) -> Enum:
+        text = text.lower()
+        return getattr(cls, text).value
+
+
+class JobPlatforms(Enum):
+    NOFLUFFJOBS = 1
+    JUSTJOINIT = 2
+
 
 class OfferLanguages(Enum):
     PL = "PL"
@@ -48,10 +58,10 @@ class JobOffer(UUIDHandleMixin, DatabaseSchemaBase):
     skills: list
     url: str
     description: str
-    platform: int
+    platform: JobPlatforms
     uuid: UUID
     lang: OfferLanguages
-    category: OfferCategories
+    category: OfferCategories = None
 
 
 @dataclass

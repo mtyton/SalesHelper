@@ -5,7 +5,7 @@ from copy import deepcopy
 
 from database.db import conn
 from database import models
-from database.dataclasses import (
+from database.schemas import (
     JobOffer,
     DoccanoData,
     TrainingData
@@ -153,6 +153,44 @@ def test_job_offer_find_nothing_found():
     assert instance is None
 
 
+def test_job_offer_find_skip_limit_success(test_connection):
+    data = [{
+        "title": "Offer1",
+        "skills": ["C#", "C++"],
+        "url": "https://google.com",
+        "description": "SomeDescription",
+        "platform": 1,
+        "uuid": uuid.uuid4(),
+        "lang": "EN",
+        "category": 3
+    },{
+        "title": "Offer2",
+        "skills": ["Python"],
+        "url": "https://google.com",
+        "description": "SomeDescription",
+        "platform": 1,
+        "uuid": uuid.uuid4(),
+        "lang": "EN",
+        "category": 3
+    },{
+        "title": "Offer3",
+        "skills": ["Java"],
+        "url": "https://google.com",
+        "description": "SomeDescription",
+        "platform": 1,
+        "uuid": uuid.uuid4(),
+        "lang": "EN",
+        "category": 3
+    }]
+    document = models.JobOfferDocument()
+    for d in data:
+        d["uuid"] = Binary.from_uuid(d['uuid'])
+        test_connection.raw_data.insert_one(d)
+    results = document.find({"lang": "EN"}, skip=1, limit=2)
+    assert len(results) == 2
+    assert results[0].title == "Offer2"
+
+
 def test_doccano_data_insert_success():
     document = models.DoccanoDataDocument()
     data = {
@@ -254,6 +292,29 @@ def test_find_doccano_data_no_record():
     assert found_instance is None
 
 
+def test_find_doccano_skip_limit_success(test_connection):
+    document = models.DoccanoDataDocument()
+    data = [{
+       "text": "Python",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 6, "Skill"),]
+    }, {
+       "text": "C++",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 2, "Skill"),]
+    }, {
+       "text": "Java",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 4, "Skill"),]
+    }]
+    for d in data:
+        d["uuid"] = Binary.from_uuid(d['uuid'])
+        test_connection.doccano_data.insert_one(d)   
+    results = document.find({}, skip=2, limit=3) 
+    assert len(results) == 1
+    assert results[0].text == "Java"
+
+
 def test_training_data_insert_success():
     document = models.TrainingDataDocument()
     data = {
@@ -353,3 +414,26 @@ def test_training_data_find_no_existing_entry():
     data["uuid"] = Binary.from_uuid(data['uuid'])
     found_instance = document.find({"uuid": data["uuid"]}, find_one=True) 
     assert found_instance is None
+
+
+def test_find_training_data_limit_success(test_connection):
+    document = models.TrainingDataDocument()
+    data = [{
+       "text": "Python",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 6, "Skill"),]
+    }, {
+       "text": "C++",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 2, "Skill"),]
+    }, {
+       "text": "Java",
+       "uuid": uuid.uuid4(),
+       "ents": [(0, 4, "Skill"),]
+    }]
+    for d in data:
+        d["uuid"] = Binary.from_uuid(d['uuid'])
+        test_connection.training_data.insert_one(d)   
+    results = document.find({}, skip=2, limit=3) 
+    assert len(results) == 1
+    assert results[0].text == "Java"
