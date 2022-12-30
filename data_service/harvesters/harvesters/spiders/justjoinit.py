@@ -4,10 +4,13 @@ from scrapy import http
 from bson.binary import Binary
 
 from harvesters.encryptor import encrypt_uuid
-from harvesters.items import (
-    JobOffer,
-    JobPlatforms
+from database.schemas import(
+    JobPlatforms,
+    OfferCategories
 )
+
+
+# TODO - THIS need to be fixed - it is currently not in use at all
 
 class JustjoinitSpider(scrapy.Spider):
     name = 'justjoinit'
@@ -27,14 +30,14 @@ class JustjoinitSpider(scrapy.Spider):
         desc = str(offer.get('body'))
         skills = list(offer.get('skills'))
         url = "https://justjoin.it/api/offers/" + offer_id
-        yield JobOffer(**{
+        yield {
             "title": title,
             "skills": skills,
             "url": url,
             "description": desc,
             "platform": JobPlatforms.JUSTJOINIT.value,
             "uuid": Binary.from_uuid(self._extract_uuid(offer_id))
-        })
+        }
 
     def parse(self, response):
         offers = json.loads(response.text)

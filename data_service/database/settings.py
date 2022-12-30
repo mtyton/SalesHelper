@@ -11,3 +11,16 @@ DATABASE_SETTINGS =  {
     "USER": os.environ.get("MONGODB_USER", "root"),
     "PASSWORD": os.environ.get("PASSWORD", "password")
 }
+
+DATABASE_TEST_SETTINGS = {
+    "HOST": "test_mongodb",
+    "PORT": 27017,
+    "USER":"root",
+    "PASSWORD": "password",
+    "DB": "test_database",
+    "RAW_COLLECTION": "offers",
+    "DOCCANO_COLLECTION": "doccano_offers",
+    "TRAINING_COLLECTION": "training_offers"
+}
+
+DB_RUNTYPE = os.environ.get("DB_RUNTYPE", "standard")

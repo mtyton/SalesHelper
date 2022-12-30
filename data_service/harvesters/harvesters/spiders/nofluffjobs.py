@@ -8,10 +8,12 @@ from harvesters.spiders.base import (
     StopPaginationException
 )
 from harvesters.encryptor import encrypt_uuid
-from harvesters.items import (
+from database.schemas import (
     JobOffer,
-    JobPlatforms
+    JobPlatforms,
+    OfferCategories
 )
+from harvesters.tools import detect_description_language
 
 
 class NofluffjobsSpider(
@@ -44,14 +46,18 @@ class NofluffjobsSpider(
         skills = skills_ul.css("li > span::text").getall()
         description = response.css("nfj-read-more > div").extract_first()
         title = response.css("h1::text").extract_first()
-        yield JobOffer(**{
+        category = response.css("a.font-weight-semi-bold ng-star-inserted").extract_first()
+        lang = detect_description_language(description)
+        yield {
             "title": title,
             "skills": skills, 
             "url": response.url,
             "description": description,
             "platform": JobPlatforms.NOFLUFFJOBS.value,
-            "uuid": Binary.from_uuid(self._extract_uuid(response.url))
-        })
+            "uuid": Binary.from_uuid(self._extract_uuid(response.url)),
+            "category": OfferCategories.from_text(category),
+            "lang": lang
+        }
 
     def parse(self, response):
         offers = response.css("a.posting-list-item")

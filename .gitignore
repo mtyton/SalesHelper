@@ -138,3 +138,4 @@ mongodb_data/*
 data_service/parsers/parsable_data/*
 data_service/parsers/doccano_export/*
 postgres/*
+ml_service/nlp/h_models/*
