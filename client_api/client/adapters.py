@@ -3,15 +3,14 @@ from typing import (
     Any
 )
 from dataclasses import (
-    is_dataclass, 
+    is_dataclass,
     asdict
 )
-from settings import default_logger
-from client.models import(
-    JobOffer,
-    NERProcesableJobOffer
-)
 from client.exceptions import AdapterException
+from client.models import (
+    JobOffer,
+    JobOfferList
+)
 
 
 class BaseAdapter:
@@ -41,6 +40,6 @@ class BaseAdapter:
         return asdict(self.output_instance)
 
 
-class JobOfferAdapter:
+class JobOfferListAdapter(BaseAdapter):
     incoming_data_dataclass = JobOffer
-    output_data_dataclass = NERProcesableJobOffer
+    output_data_dataclass = JobOfferList

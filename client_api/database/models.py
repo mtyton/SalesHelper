@@ -6,21 +6,35 @@ from sqlalchemy import (
     String, 
     Text
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import (
+    relationship,
+    Mapped
+)
+from enum import Enum
+from uuid import UUID
 
 from database.db import Base
-    
+
+
+
+class EmployeeCategory(Enum):
+    backend = 1
+    frontend = 2
+    fullstack = 3
+    mobile = 4
+
 
 class Employee(Base):
     __tablename__ = "employees"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    surname = Column(String)
-    position = Column(String)
+    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = Column(String)
+    surname: Mapped[str] = Column(String)
+    position: Mapped[str] = Column(String)
 
     is_busy = Column(Boolean, default=False)
     resume = relationship("Resume", back_populates="owner")
+    category: Mapped[EmployeeCategory] = Column(Integer)
 
     @property
     def full_name(self):
@@ -35,3 +49,13 @@ class Resume(Base):
 
     owner_id = Column(Integer, ForeignKey("employees.id"))
     owner = relationship("Employee", back_populates="resume")
+
+
+class EmployeeOfferMatch(Base):
+    
+    employee_id = Column(Integer, ForeignKey("employees.id"))
+    employee = relationship("Employee", back_populates="matches")
+    offer_uuid = Column(UUID(as_uuid=True))
+
+    def get_offer_details(self):
+        ...

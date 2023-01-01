@@ -19,3 +19,4 @@ services:
       - DB_RUNTYPE=test_run
     volumes: 
       - ../:/data
+  

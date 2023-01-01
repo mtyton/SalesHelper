@@ -4,6 +4,8 @@ from dataclasses import asdict
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from typing import List
+from uuid import UUID
+from bson.binary import Binary
 
 
 from database.db import conn
@@ -60,7 +62,7 @@ def get_raw_data():
 
 
 @app.get("/data/offers", response_model=List[JobOffer])
-def get_job_offers(skip:int = 0, limit: int = 10, category_name: str = None):
+def get_job_offers(skip: int = 0, limit: int = 25, category_name: str = None):
     document = JobOfferDocument()
     query = {"lang": "EN"}
     if category_name is not None:
@@ -68,6 +70,13 @@ def get_job_offers(skip:int = 0, limit: int = 10, category_name: str = None):
         query["category"] = category
     queryset = document.find(query, skip=skip, limit=limit)
     return queryset
+
+
+@app.get("/data/offers/{offer_uuid}", response_model=JobOffer)
+def get_job_offer(offer_uuid: UUID):
+    document = JobOfferDocument()
+    query = {"uuid": Binary.from_uuid(offer_uuid)}
+    return document.find(query)
 
 
 if __name__ == "__main__":
