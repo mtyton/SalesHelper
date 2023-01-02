@@ -4,14 +4,15 @@ from sqlalchemy import (
     ForeignKey, 
     Integer, 
     String, 
-    Text
+    Text,
+    Float
 )
 from sqlalchemy.orm import (
     relationship,
     Mapped
 )
 from enum import Enum
-from uuid import UUID
+from sqlalchemy.dialects.postgresql import UUID
 
 from database.db import Base
 
@@ -52,10 +53,15 @@ class Resume(Base):
 
 
 class EmployeeOfferMatch(Base):
-    
+    __tablename__ = "employeeoffersmatches"
+
+    id = Column(Integer, primary_key=True, index=True)
     employee_id = Column(Integer, ForeignKey("employees.id"))
     employee = relationship("Employee", back_populates="matches")
+    
     offer_uuid = Column(UUID(as_uuid=True))
+    match_ratio = Column(Float)
+
 
     def get_offer_details(self):
         ...

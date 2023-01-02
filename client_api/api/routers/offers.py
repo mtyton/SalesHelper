@@ -6,31 +6,25 @@ from api.schemas.offers import (
     JobOffer,
     JobOfferDetails
 )
+from client.main import dt_client
 
 
 router = APIRouter(prefix="/offers")
 
 
 @router.get("/", response_model=List[JobOffer])
-def get_job_offers():
-    # TODO - it should look for data in data_service
+def get_job_offers(category: str, skip: int = 0, limit: int = 25):
+    data = dt_client.get_job_offers_list(category=category, skip=skip, limit=limit)
+    print(data)
     return [
-        JobOffer(
-            **{"title": "Test`1", "skills": ["C++", "Python"], "url": "https://fastapi.com", "uuid": "1"}
-        ),
-        JobOffer(
-            **{"title": "Test`2", "skills": ["C#", "Java"], "url": "https://fastapi.com", "uuid": "2"}
-        ),
+        JobOffer(**kw) for kw in data
     ]
 
 
 @router.get("/{offer_uuid}", response_model=JobOfferDetails)
 def get_job_offer(offer_uuid: UUID):
     return JobOfferDetails(
-        **{
-            "title": "Test`1", "skills": ["C++", "Python"], "url": "https://fastapi.com", 
-            "uuid": str(offer_uuid), "description": "This is a test job offer description, it'll get longer soon"
-        }
+        **dt_client.get_exact_job_offer(offer_uuid)
     )
 
 

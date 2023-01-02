@@ -9,6 +9,7 @@ class JobOffer:
     skills: list
     url: str
     category: int
+    platform: int
 
 
 @dataclass

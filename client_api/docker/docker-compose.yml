@@ -23,7 +23,7 @@ services:
     volumes:
       - ../:/app
     container_name: website_api
-    command: python3 main.py
+    command: python3 api/main.py
     environment:
       - DB_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${POSTGRES_USER}

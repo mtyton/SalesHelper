@@ -13,6 +13,8 @@ class JobOffer:
     url: str
     category: int
     description: str
+    platform: int
+    lang: str
 
 
 @dataclass
@@ -22,6 +24,8 @@ class JobOfferList:
     skills: list
     url: str
     category: int
+    platform: int
+    lang: str
 
     @classmethod
     def from_instance(cls, instance: JobOffer):

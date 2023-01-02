@@ -1,13 +1,31 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# TODO - basic auth
-# TODO - maybe add registration
-# TODO - add list of possible job offers
-# TODO - add endpoint to sent job offer uuid and cv text in json
+from database.db import(
+    Base,
+    engine
+)
+from api.routers.employees import router as employee_router
+from api.routers.offers import router as offer_router
+from api import settings
 
 
+
+Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+
+app.include_router(employee_router)
+app.include_router(offer_router)
 
 
 if __name__ == "__main__":
