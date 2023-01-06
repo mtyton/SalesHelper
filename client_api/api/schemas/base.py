@@ -14,10 +14,10 @@ class ValidationException(Exception):
 
 @dataclass
 class DatabaseResponseBase:
-
+    
     @classmethod
     def special_field_mappings(cls, instance: Base) -> dict:
-        ...
+        return {}
 
     @classmethod
     def from_db_instance(cls, instance: Base) -> object:
@@ -40,8 +40,11 @@ class DatabaseRequestBase:
         ...
 
     def get_existing_entry(self, db: Session, **kwargs) -> Base:
-        prmiary_key = kwargs.pop(self._id_kwarg_name)
-        return db.query(self._model).filter(**{self._id_lookup_name: prmiary_key})
+        primary_key = kwargs.pop(self._id_kwarg_name, None)
+        if not primary_key:
+            return primary_key
+        # TODO - fix this
+        return db.query(self._model).filter(**{self._id_lookup_name: primary_key}).first()
 
     def is_valid(self, db: Session, operation="insert", **kwargs, ):
         existing_entry = self.get_existing_entry(db, **kwargs)

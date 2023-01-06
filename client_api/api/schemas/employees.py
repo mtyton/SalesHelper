@@ -22,7 +22,7 @@ class ResumeResponse(DatabaseResponseBase):
 
 
 @dataclass
-class EmployeeListResponse(DatabaseResponseBase):
+class EmployeeResponse(DatabaseResponseBase):
     id: int
     name: str
     surname : str
@@ -30,22 +30,19 @@ class EmployeeListResponse(DatabaseResponseBase):
 
     is_busy: bool
     category: str
-
+    resume: ResumeResponse
+    
     @classmethod
     def special_field_mappings(cls, instance: Base) -> dict:
-        return {
+        mappings = {
             "category": str(EmployeeCategory(instance.category)).split(".")[-1]
         }
 
-
-@dataclass 
-class EmployeeDetailResponse(EmployeeListResponse):
-    resume: ResumeResponse
-
-    @classmethod
-    def special_field_mappings(cls, instance: Base) -> dict:
-        mappings = super().special_field_mappings(instance)
-        mappings["resume"] = ResumeResponse.from_db_instance(instance.resume)
+        resume = instance.resume[0] if instance.resume else None
+        if resume:
+            mappings["resume"] = ResumeResponse.from_db_instance(resume)
+        else:
+            mappings["resume"] = ResumeResponse(**{"content": ""})
         return mappings
 
 
@@ -62,17 +59,18 @@ class EmployeeRequest(DatabaseRequestBase):
 
     def map_to_database_fields(self, db: Session, **kwargs):
         data = asdict(self)
-        data["category"] = EmployeeCategory(data["category"])
+        data.pop("_model")
         return data
 
 
 @dataclass
 class ResumeAddRequest(DatabaseRequestBase):
     content: str
+    _model = Resume
 
     def map_to_database_fields(self, db: Session, **kwargs):
         employee_id = kwargs.pop("employee_id")
-        employee = db.query(Employee).filter(id=employee_id)
+        employee = db.query(Employee).filter(Employee.id==employee_id).first()
         return {
             "owner_id": employee_id,
             "owner": employee,

@@ -13,7 +13,7 @@ from database.schemas import (
     JobPlatforms,
     OfferCategories
 )
-from harvesters.tools import detect_description_language
+from tools import detect_description_language
 
 
 class NofluffjobsSpider(
@@ -23,7 +23,7 @@ class NofluffjobsSpider(
     name = 'nofluffjobs'
     allowed_domains = ['nofluffjobs.com']
     start_urls = [
-        "https://nofluffjobs.com/pl/backend",
+        # "https://nofluffjobs.com/pl/backend",
         "https://nofluffjobs.com/pl/frontend",
         "https://nofluffjobs.com/pl/fullstack",
         "https://nofluffjobs.com/pl/mobile",
@@ -46,7 +46,7 @@ class NofluffjobsSpider(
         skills = skills_ul.css("li > span::text").getall()
         description = response.css("nfj-read-more > div").extract_first()
         title = response.css("h1::text").extract_first()
-        category = response.css("a.font-weight-semi-bold ng-star-inserted").extract_first()
+        category = response.css("a.font-weight-semi-bold::text").extract_first().strip()
         lang = detect_description_language(description)
         yield {
             "title": title,
@@ -54,7 +54,7 @@ class NofluffjobsSpider(
             "url": response.url,
             "description": description,
             "platform": JobPlatforms.NOFLUFFJOBS.value,
-            "uuid": Binary.from_uuid(self._extract_uuid(response.url)),
+            "uuid": self._extract_uuid(response.url),
             "category": OfferCategories.from_text(category),
             "lang": lang
         }

@@ -13,6 +13,7 @@ from api import settings
 
 
 Base.metadata.create_all(bind=engine)
+print(Base.metadata.create_all(bind=engine))
 app = FastAPI()
 
 app.add_middleware(

@@ -10,8 +10,5 @@ class JobOffer:
     url: str
     category: int
     platform: int
-
-
-@dataclass
-class JobOfferDetails(JobOffer):
+    lang: str
     description: str

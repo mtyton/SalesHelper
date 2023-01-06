@@ -34,8 +34,10 @@ class Employee(Base):
     position: Mapped[str] = Column(String)
 
     is_busy = Column(Boolean, default=False)
+    category: Mapped[int] = Column(Integer)
+    
     resume = relationship("Resume", back_populates="owner")
-    category: Mapped[EmployeeCategory] = Column(Integer)
+    matches = relationship("EmployeeOfferMatch", back_populates="employee")
 
     @property
     def full_name(self):

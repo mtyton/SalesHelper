@@ -13,7 +13,7 @@ class OfferCategories(Enum):
     fullstack = 3
     mobile = 4
 
-    # TODO - this can be redactored!!
+    # TODO - this can be refactored!!
     @classmethod
     def from_text(cls, text: str) -> Enum:
         text = text.lower()

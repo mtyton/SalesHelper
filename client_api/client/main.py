@@ -50,12 +50,12 @@ class DataServiceClient(Client):
         if category is not None:
             url += f"&category_name={category}"
         response = requests.get(url)
-        return self.adapt_data(response.json())
-
+        return response.json()
+ 
     def get_exact_job_offer(self, offer_uuid):
         url = self.get_full_url(f"/data/offers/{offer_uuid}")
         response = requests.get(url)
-        return self.adapter.adapt(response.json())
+        return response.json()
 
 
 dt_client = DataServiceClient()

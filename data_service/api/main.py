@@ -76,7 +76,7 @@ def get_job_offers(skip: int = 0, limit: int = 25, category_name: str = None):
 def get_job_offer(offer_uuid: UUID):
     document = JobOfferDocument()
     query = {"uuid": Binary.from_uuid(offer_uuid)}
-    return document.find(query)
+    return document.find(query, find_one=True)
 
 
 if __name__ == "__main__":
