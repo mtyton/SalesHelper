@@ -1,14 +1,13 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 
 @dataclass
 class ResumeMatchRequest:
-    text: str
+    resume: str
 
 
 @dataclass
 class ResumeMatchResponse:
-    title: str
-    skills: list
-    url: str
-    description: str
+    offer_uuid: UUID
+    match_ratio: float

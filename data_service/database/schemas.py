@@ -61,7 +61,7 @@ class JobOffer(UUIDHandleMixin, DatabaseSchemaBase):
     description: str
     platform: JobPlatforms
     uuid: UUID
-    lang: OfferLanguages
+    lang: str
     category: OfferCategories = None
 
 
@@ -73,7 +73,6 @@ class DoccanoData(UUIDHandleMixin, DatabaseSchemaBase):
 
 
 @dataclass
-class TrainingData(UUIDHandleMixin, DatabaseSchemaBase):
-    uuid: UUID
+class TrainingData(DatabaseSchemaBase):
     text:str
     ents: list

@@ -46,6 +46,8 @@ services:
     restart: always
     container_name: crawler
     command: python3 harvesters/harvest.py nofluffjobs
+    volumes: 
+      - ../:/data
 
 volumes:
   mongodb_data: {}

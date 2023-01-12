@@ -41,6 +41,6 @@ class BaseAdapter:
         return asdict(self.output_instance)
 
 
-class JobOfferAdapter:
+class JobOfferAdapter(BaseAdapter):
     incoming_data_dataclass = JobOffer
     output_data_dataclass = NERProcesableJobOffer

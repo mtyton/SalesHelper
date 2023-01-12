@@ -38,9 +38,9 @@ class DataServiceClient(Client):
     target_port = "5000"
     adapter = JobOfferAdapter()
 
-    def get_filtered_raw_data(self, number_of_records:int = 10):
+    def get_filtered_raw_data(self, category_name: str):
         url = self.get_full_url("/data/offers")
-        response = requests.get(url, kwargs={"number_of_records": number_of_records})
+        response = requests.get(url, params={"category_name": category_name, "all": True})
         return self.adapt_data(response.json())
 
     def get_and_preproces_raw_data(self):

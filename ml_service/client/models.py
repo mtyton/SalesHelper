@@ -12,6 +12,7 @@ class JobOffer:
     skills: list
     url: str
     description: str
+    category: int
     platform: int
     uuid: UUID
     lang: str = None

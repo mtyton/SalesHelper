@@ -43,8 +43,9 @@ class DatabaseRequestBase:
         primary_key = kwargs.pop(self._id_kwarg_name, None)
         if not primary_key:
             return primary_key
-        # TODO - fix this
-        return db.query(self._model).filter(**{self._id_lookup_name: primary_key}).first()
+        return db.query(self._model).filter(
+            getattr(self._model, self._id_lookup_name).like(primary_key)
+        ).first()
 
     def is_valid(self, db: Session, operation="insert", **kwargs, ):
         existing_entry = self.get_existing_entry(db, **kwargs)

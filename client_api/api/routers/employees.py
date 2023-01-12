@@ -39,6 +39,7 @@ def get_employee_detail(employee_id: int, db: Session = Depends(get_db)):
 @router.post("/", response_model=EmployeeResponse)
 def create_employee(employee_data: EmployeeRequest, db: Session = Depends(get_db)):
     db_instance = employee_data.insert(db)
+    # TODO - run background task
     return EmployeeResponse.from_db_instance(db_instance)
 
 

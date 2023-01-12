@@ -1,12 +1,16 @@
 import requests
+import json
 from typing import(
     List,
     Dict,
     Any,
     Union
 )
-from uuid import UUID
 
+from database.models import (
+    EmployeeCategory,
+    Employee
+)
 from client.exceptions import ClientException
 from client.adapters import (
     JobOfferListAdapter
@@ -61,5 +65,17 @@ class DataServiceClient(Client):
 dt_client = DataServiceClient()
 
 
-class MachineLearningServiceClient:
-    ...
+class MachineLearningServiceClient(Client):
+    target_host = "ml_service"
+    target_port = "5002"
+    
+    def get_match(self, employee: Employee, resume_content: str):
+        url = self.get_full_url("/ml/match")
+        category = EmployeeCategory(employee.category)
+        url += f"?category={category.name}"
+        with requests.post(url, json={"resume": resume_content}, stream=True) as r:
+            for item in r.iter_content(chunk_size=2048):
+                yield json.loads(item)
+
+
+ml_client = MachineLearningServiceClient()

@@ -62,13 +62,16 @@ def get_raw_data():
 
 
 @app.get("/data/offers", response_model=List[JobOffer])
-def get_job_offers(skip: int = 0, limit: int = 25, category_name: str = None):
+def get_job_offers(skip: int = 0, limit: int = 25, category_name: str = None, all: bool = False):
     document = JobOfferDocument()
     query = {"lang": "EN"}
     if category_name is not None:
         category = OfferCategories.from_text(category_name)
         query["category"] = category
-    queryset = document.find(query, skip=skip, limit=limit)
+    if all:
+        queryset = document.find(query)
+    else:
+        queryset = document.find(query, skip=skip, limit=limit)
     return queryset
 
 

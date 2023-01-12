@@ -1,22 +1,19 @@
 from typing import (
     Tuple,
     List, 
-    Union
+    Union,
+    Iterator
 )
-from dataclasses import dataclass
+import json
+from dataclasses import asdict
 
+from api.models import ResumeMatchResponse
 from nlp.ner import NER
 from client.main import dt_client
 
 
 KNOWN_ENTITY_TYPES = ['Skill', 'Position', 'Experience', 'Education']
-PARSED_ENTITY_TYPE = List[Tuple(str, str)]
-
-
-@dataclass
-class Match:
-    matching_skills: List[str]
-    match_ratio: float
+PARSED_ENTITY_TYPE = List[Tuple[str, str]]
 
 
 class Matcher:
@@ -60,18 +57,13 @@ class Matcher:
             if skill in resume_skill_entities:
                 matched_skills.append(skill)
                 number_of_matched_ents += 1
-        return matched_skills, float(number_of_matched_ents/len(offer_skill_entities))
+        denominator = len(offer_skill_entities)
+        ratio = float(number_of_matched_ents/denominator) if denominator else 0
+        return matched_skills, ratio
 
 
-    def _get_single_offer_matching(self, resume, offer):
+    def get_single_offer_matching(self, resume, offer) -> ResumeMatchResponse:
         resume_ents = self._extract_entities(resume)
-        offer_ents = self._extract_entities(offer)
-        matching_skills, match_ratio = self._get_skills_matching(resume_ents, offer_ents)
-        return Match(matching_skills=matching_skills, match_ratio=match_ratio)
-
-    def get_best_matches(self, resume) -> List[Match]:
-        offers = dt_client.get_filtered_raw_data(number_of_records=20)
-        matches = []
-        for offer in offers:
-            matches.append(self._get_single_offer_matching(resume, offer))
-        return matches
+        offer_ents = self._extract_entities(offer["text"])
+        _, match_ratio = self._get_skills_matching(resume_ents, offer_ents)
+        return ResumeMatchResponse(offer_uuid=offer["uuid"], match_ratio=match_ratio)
