@@ -38,8 +38,3 @@ class BaseAdapter:
         self._incoming_instance = self.incoming_data_dataclass(**data)
         self._output_instance = self.output_data_dataclass.from_instance(instance = self.incoming_instance)
         return asdict(self.output_instance)
-
-
-class JobOfferListAdapter(BaseAdapter):
-    incoming_data_dataclass = JobOffer
-    output_data_dataclass = JobOfferList

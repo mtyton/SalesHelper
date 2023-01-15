@@ -12,9 +12,6 @@ from database.models import (
     Employee
 )
 from client.exceptions import ClientException
-from client.adapters import (
-    JobOfferListAdapter
-)
 
 
 
@@ -45,8 +42,6 @@ class Client:
 class DataServiceClient(Client):
     target_host = "data_service"
     target_port = "5000"
-    adapter = JobOfferListAdapter()
-
 
     def get_job_offers_list(self, category: Union[None, str] = None, skip: int = 0, limit: int = 25):
         url = self.get_full_url("/data/offers/")
@@ -61,7 +56,6 @@ class DataServiceClient(Client):
         response = requests.get(url)
         return response.json()
 
-
 dt_client = DataServiceClient()
 
 
@@ -74,6 +68,7 @@ class MachineLearningServiceClient(Client):
         category = EmployeeCategory(employee.category)
         url += f"?category={category.name}"
         with requests.post(url, json={"resume": resume_content}, stream=True) as r:
+            r.raise_for_status()
             for item in r.iter_content(chunk_size=2048):
                 yield json.loads(item)
 

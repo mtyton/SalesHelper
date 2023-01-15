@@ -1,10 +1,18 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import (
+    APIRouter,
+    Depends
+)
 
-from api.schemas.offers import JobOffer
+from api.schemas.offers import (
+    JobOffer,
+    OfferMatchResponse
+)
 
 from client.main import dt_client
+from database.db import get_db
+from database.models import EmployeeOfferMatch
 
 
 router = APIRouter(prefix="/offers")
@@ -26,5 +34,8 @@ def get_job_offer(offer_uuid: UUID):
 
 
 @router.get("/{offer_uuid}/match")
-def get_offer_matched_employees(offer_uuid: UUID):
-    ...
+def get_offer_matched_employees(offer_uuid: UUID, skip: int=0, limit: int=25, db=Depends(get_db)):
+    matches = db.query(EmployeeOfferMatch).filter(
+        EmployeeOfferMatch.offer_uuid==offer_uuid
+    ).offset(skip).limit(limit).all()
+    return [OfferMatchResponse.from_db_instance(match) for match in matches]

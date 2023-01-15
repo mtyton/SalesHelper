@@ -40,11 +40,11 @@ class DatabaseRequestBase:
         ...
 
     def get_existing_entry(self, db: Session, **kwargs) -> Base:
-        primary_key = kwargs.pop(self._id_kwarg_name, None)
+        primary_key = kwargs.pop(self._id_kwarg_name)
         if not primary_key:
             return primary_key
         return db.query(self._model).filter(
-            getattr(self._model, self._id_lookup_name).like(primary_key)
+            getattr(self._model, self._id_lookup_name)==primary_key
         ).first()
 
     def is_valid(self, db: Session, operation="insert", **kwargs, ):
@@ -56,18 +56,17 @@ class DatabaseRequestBase:
 
     def update(self, db: Session, **kwargs):
         data = self.map_to_database_fields(db=db, **kwargs)
+        kwargs.update(data)
         if not self.is_valid(db, operation="update", **kwargs):
             raise ValidationException(
                 f"No existing record for model: {self._model} for primary_key: \
                 {kwargs.get(self._id_kwarg_name)}"
         )
         instance = self.get_existing_entry(db, **kwargs)
-        instance.update(**data)
-        db.execute(
-            update(instance).
-            where(id=instance.id).
-            values(asdict(instance))
-        )
+        db.query(self._model).filter(
+            getattr(self._model, self._id_lookup_name)==instance.id
+        ).update(data)
+
         db.commit()
         db.refresh(instance)
         return instance

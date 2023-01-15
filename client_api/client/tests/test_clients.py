@@ -1,9 +1,7 @@
 import pytest
 import uuid
 import requests_mock
-from typing import List
 
-from client.models import JobOffer
 from client.main import (
     dt_client
 )
@@ -63,4 +61,4 @@ def test_data_service_client_get_job_offer_list_success_only_frontend_offers(job
     assert isinstance(job_offers, list)
     assert len(job_offers) == 1
     assert job_offers[0]["title"] == "Offer 4"
-    assert job_offers[0].get("description") is None
+    assert job_offers[0].get("description") == "Final Interesting description"

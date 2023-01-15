@@ -1,3 +1,4 @@
+from typing import Union
 from sqlalchemy import (
     Boolean, 
     Column, 
@@ -14,8 +15,10 @@ from sqlalchemy.orm import (
 from enum import Enum
 from sqlalchemy.dialects.postgresql import UUID
 
-from database.db import Base
-
+from database.db import (
+    Base,
+    get_db
+)
 
 
 class EmployeeCategory(Enum):
@@ -43,6 +46,25 @@ class Employee(Base):
     def full_name(self):
         return f"{self.name} {self.surname}"
 
+    def create_match(self, **match_kwargs) -> Union[None, Base]:
+        match_kwargs["employee_id"] = self.id
+        db = next(get_db())
+        if db.query(EmployeeOfferMatch).filter(
+            EmployeeOfferMatch.offer_uuid==match_kwargs["offer_uuid"],
+            EmployeeOfferMatch.employee_id==self.id
+        ).first():
+            return
+        instance = EmployeeOfferMatch(**match_kwargs)
+        db.add(instance)
+        db.commit()
+        db.refresh(instance)
+        return instance
+
+    def remove_matches(self) -> None:
+        db = next(get_db())
+        db.query(EmployeeOfferMatch).filter(EmployeeOfferMatch.employee_id==self.id).delete()
+        db.commit()
+
 
 class Resume(Base):
     __tablename__ = "resumes"
@@ -58,12 +80,8 @@ class EmployeeOfferMatch(Base):
     __tablename__ = "employeeoffersmatches"
 
     id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, ForeignKey("employees.id"))
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
     employee = relationship("Employee", back_populates="matches")
     
-    offer_uuid = Column(UUID(as_uuid=True))
-    match_ratio = Column(Float)
-
-
-    def get_offer_details(self):
-        ...
+    offer_uuid = Column(UUID(as_uuid=True), nullable=False)
+    match_ratio = Column(Float, nullable=False)
