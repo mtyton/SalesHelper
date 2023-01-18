@@ -4,13 +4,20 @@ from dataclasses import asdict
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from typing import List
+from uuid import UUID
 from bson.binary import Binary
 
 
 from database.db import conn
-from api.models import (
-    RawEntryResponseModel,
-    NlpProcessedData
+from database.models import (
+    DoccanoDataDocument,
+    TrainingDataDocument,
+    JobOfferDocument
+)
+from database.schemas import (
+    JobOffer,
+    DoccanoData,
+    OfferCategories
 )
 from parsers.mongodb_data_parser import parse_data_to_doccano_format
 
@@ -20,47 +27,59 @@ app = FastAPI()
 
 @app.get("/data/training")
 def get_training_data():
-    data = conn.training_data.find()
-    return [(r["text"], r["ents"]) for r in data]
+    document = TrainingDataDocument()
+    data = document.find({})
+    return [(r.text, r.ents) for r in data]
 
 
 @app.post("/data/doccano", status_code=201)
-def save_doccano_data(data: List[NlpProcessedData]):
+def save_doccano_data(data: List[DoccanoData]):
     counter = 0
+    document = DoccanoDataDocument()
     for d in data:
-        existing_entry = conn.doccano_data.find_one({"uuid":  Binary.from_uuid(d.uuid)})
-        if not existing_entry:
-            row_data = asdict(d)
-            row_data["uuid"] = Binary.from_uuid(row_data["uuid"])
-            conn.doccano_data.insert_one(row_data)
-            counter += 1
+        row_data = asdict(d)
+        document.insert(**row_data)
+        counter += 1
     return {"inserted": counter}
 
 
 @app.get("/data/doccano-export")
 def export_doccano_data():
+    document = DoccanoDataDocument()
     def generate_data():
-        data = parse_data_to_doccano_format(((elem["text"], elem["ents"]) for elem in conn.doccano_data.find()))
+        data = parse_data_to_doccano_format(((elem.text, elem.ents) for elem in document.find({})))
         for d in data:
             yield f"{json.dumps(d)}\n"
     return StreamingResponse(generate_data(), media_type="jsonl")
     
 
-@app.get("/data/raw", response_model=List[RawEntryResponseModel])
-def get_raw_data(number_of_records: int = None):
-    # TODO - add filtering
+# NOTE returns raw data only for being tagged - not to use as offer list!!!
+@app.get("/data/raw", response_model=List[JobOffer])
+def get_raw_data():
+    document = JobOfferDocument()
+    query = {"lang": "EN"} 
+    return document.find(query)
+
+
+@app.get("/data/offers", response_model=List[JobOffer])
+def get_job_offers(skip: int = 0, limit: int = 25, category_name: str = None, all: bool = False):
+    document = JobOfferDocument()
     query = {"lang": "EN"}
-    if not number_of_records:
-        queryset = conn.raw_data.find(query)
+    if category_name is not None:
+        category = OfferCategories.from_text(category_name)
+        query["category"] = category
+    if all:
+        queryset = document.find(query)
     else:
-        queryset = conn.raw_data.aggregate([
-            { "$match": query },
-            { "$sample": { "size": number_of_records}}
-        ])
-    response_data = []
-    for elem in queryset:
-        response_data.append(RawEntryResponseModel(**elem))
-    return response_data
+        queryset = document.find(query, skip=skip, limit=limit)
+    return queryset
+
+
+@app.get("/data/offers/{offer_uuid}", response_model=JobOffer)
+def get_job_offer(offer_uuid: UUID):
+    document = JobOfferDocument()
+    query = {"uuid": Binary.from_uuid(offer_uuid)}
+    return document.find(query, find_one=True)
 
 
 if __name__ == "__main__":

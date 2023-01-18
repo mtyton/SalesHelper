@@ -37,16 +37,6 @@ services:
     volumes: 
       - ../:/data
 
-  crawler:
-    build:
-      context: ../
-      dockerfile: docker/Dockerfile
-    depends_on:
-      - "mongodb"
-    restart: always
-    container_name: crawler
-    command: python3 harvesters/harvest.py nofluffjobs
-
 volumes:
   mongodb_data: {}
   data_service_data: {}

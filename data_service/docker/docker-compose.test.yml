@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+  test_mongodb:
+    image: mongo
+    container_name: test_mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  test_data:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - "test_mongodb"
+    container_name: test_data_service
+    command: python3 runtests.py
+    environment:
+      - DB_RUNTYPE=test_run
+    volumes: 
+      - ../:/data
+  

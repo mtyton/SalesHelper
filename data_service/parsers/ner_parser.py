@@ -59,7 +59,6 @@ def _remove_overlaping_ents(entities: NER_DATA) -> NER_DATA:
 
 def _parse_entities(entities: List[Dict]) -> Tuple[str, int, int]:
     parsed_entities = []
-    existing_labels = []
     for ent in entities:
         parsed_entities.append((
             ent["start_offset"], 
@@ -80,14 +79,14 @@ def _dataframe_to_ner_format(df) -> NER_DATA:
     return data
 
 def load_and_preprocess(filename: str) -> NER_DATA:
-    df = pd.DataFrame(columns=["text", "entities"])
+    data = []
     with open(f"{PARSABLE_DATA_DIR}/{filename}") as f:
         for line in f.readlines():
             line = json.loads(line)
-            line_data = pd.DataFrame({
-                "text": line["text"],
-                "entities": [_parse_entities(line["entities"])]
+            data.append({
+                    "text": line["text"],
+                    "entities": line["entities"]
             })
-            df = pd.concat([df, line_data], ignore_index=True)
+    df = pd.DataFrame(columns=["text", "entities"], data=data)
     df = df.apply(__preprocess_data, axis=1)
     return _dataframe_to_ner_format(df)
