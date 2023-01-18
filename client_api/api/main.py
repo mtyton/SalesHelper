@@ -8,12 +8,11 @@ from database.db import(
 )
 from api.routers.employees import router as employee_router
 from api.routers.offers import router as offer_router
+from api.routers.auth import router as auth_router
 from api import settings
 
 
-
 Base.metadata.create_all(bind=engine)
-print(Base.metadata.create_all(bind=engine))
 app = FastAPI()
 
 app.add_middleware(
@@ -27,6 +26,7 @@ app.add_middleware(
 
 app.include_router(employee_router)
 app.include_router(offer_router)
+app.include_router(auth_router)
 
 
 if __name__ == "__main__":

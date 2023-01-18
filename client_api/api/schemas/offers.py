@@ -12,8 +12,3 @@ class JobOffer:
     platform: int
     lang: str
     description: str
-
-
-@dataclass
-class OfferMatchResponse:
-    ...

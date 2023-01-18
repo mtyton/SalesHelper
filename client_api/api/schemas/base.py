@@ -40,7 +40,7 @@ class DatabaseRequestBase:
         ...
 
     def get_existing_entry(self, db: Session, **kwargs) -> Base:
-        primary_key = kwargs.pop(self._id_kwarg_name)
+        primary_key = kwargs.pop(self._id_kwarg_name, None)
         if not primary_key:
             return primary_key
         return db.query(self._model).filter(
@@ -70,7 +70,6 @@ class DatabaseRequestBase:
         db.commit()
         db.refresh(instance)
         return instance
-
 
     def insert(self, db: Session, **kwargs):
         data = self.map_to_database_fields(db=db, **kwargs)

@@ -28,6 +28,15 @@ class EmployeeCategory(Enum):
     mobile = 4
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = Column(Integer, primary_key=True, index=True)
+    username: Mapped[str] = Column(String)
+    password: Mapped[str] = Column(String)
+    email: Mapped[str] = Column(String)
+
+
 class Employee(Base):
     __tablename__ = "employees"
 

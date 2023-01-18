@@ -14,8 +14,6 @@ from api.schemas.base import (
     DatabaseRequestBase,
     DatabaseResponseBase
 )
-from api.schemas.offers import JobOffer
-from client.main import dt_client
 
 
 @dataclass
@@ -86,18 +84,3 @@ class ResumeUpdateRequest(ResumeAddRequest):
         resume_id = employee.resume[0].id
         mapping["id"] = resume_id
         return mapping
-
-
-@dataclass 
-class EmployeeMatchResponse(DatabaseResponseBase):
-    match_ratio: float
-    offer: JobOffer
-
-    @classmethod
-    def special_field_mappings(cls, instance: Base) -> dict:
-        offer_uuid = instance.offer_uuid
-        offer_json = dt_client.get_exact_job_offer(offer_uuid)
-        offer = JobOffer(**offer_json)
-        return {
-            "offer": offer
-        }
