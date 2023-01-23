@@ -22,3 +22,4 @@ def synchronize_employee_matches(employee_id: int) -> None:
     for match_data in ml_client.get_match(employee=employee, resume_content=resume.content):
         if match_data["match_ratio"] >= match_treshold:
             employee.create_match(**match_data)
+    db.close()

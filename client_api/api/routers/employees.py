@@ -5,23 +5,24 @@ from fastapi import (
 )
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from api.schemas.employees import (
     EmployeeResponse, 
     ResumeResponse,
     EmployeeRequest,
     ResumeAddRequest,
-    ResumeUpdateRequest
+    ResumeUpdateRequest,
+    WrappedEmployeeResponse
 )
 from api.schemas.matches import EmployeeMatchResponse
 from database.db import (
     get_db, 
-    Base,
-    engine
 )
 from database.models import (
     Employee,
-    EmployeeOfferMatch
+    EmployeeOfferMatch,
+    EmployeeCategory
 )
 from database.tasks import synchronize_employee_matches
 from api.routers.auth import get_current_user
@@ -31,22 +32,31 @@ from api.schemas.auth import UserResponse
 router = APIRouter(prefix="/employees")
 
 
-@router.get("/", response_model=List[EmployeeResponse])
+@router.get("/", response_model=WrappedEmployeeResponse)
 def get_employees_list(
-    skip: int = 0, limit:int = 25, db: Session = Depends(get_db),
+    category: str, skip: int = 0, limit:int = 25, db: Session = Depends(get_db),
     user: UserResponse=Depends(get_current_user)
 ):
-    data = db.query(Employee).offset(skip).limit(limit).all()
-    return [EmployeeResponse.from_db_instance(d) for d in data]
-
-
-@router.get("/{employee_id}", response_model=EmployeeResponse)
-def get_employee_detail(
-    employee_id: int, db: Session = Depends(get_db),
-    user: UserResponse=Depends(get_current_user)
-):
-    db_employee = db.query(Employee).filter(Employee.id == employee_id).first()
-    return EmployeeResponse.from_db_instance(db_employee)
+    if category=="all":
+        data = db.query(Employee).offset(skip).limit(limit).all()
+        count_query = db.query(
+            func.count(Employee.id)
+        )
+    else:
+        numerical_category = getattr(EmployeeCategory, category).value
+        data = db.query(Employee).filter(
+            Employee.category==numerical_category
+        ).offset(skip).limit(limit).all()
+        count_query = db.query(
+            func.count(Employee.id)
+        ).filter(Employee.category==numerical_category)
+    
+    print(db.execute(count_query).first()[0])
+    response = WrappedEmployeeResponse(
+        results=[EmployeeResponse.from_db_instance(d) for d in data],
+        total_count=db.execute(count_query).first()[0]
+    )
+    return response 
 
 
 @router.post("/", response_model=EmployeeResponse)
@@ -96,5 +106,5 @@ def get_employee_matches(
 ):
     matches = db.query(EmployeeOfferMatch).filter(
         EmployeeOfferMatch.employee_id==employee_id
-    ).offset(skip).limit(limit).all()
+    ).order_by(EmployeeOfferMatch.match_ratio.desc()).offset(skip).limit(limit).all()
     return [EmployeeMatchResponse.from_db_instance(match) for match in matches]
