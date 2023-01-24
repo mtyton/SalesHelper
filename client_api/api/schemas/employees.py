@@ -2,7 +2,7 @@ from dataclasses import (
     dataclass,
     asdict
 )
-
+from typing import List
 from sqlalchemy.orm import Session
 from database.db import Base
 from database.models import (
@@ -44,6 +44,12 @@ class EmployeeResponse(DatabaseResponseBase):
         else:
             mappings["resume"] = ResumeResponse(**{"content": ""})
         return mappings
+
+
+@dataclass
+class WrappedEmployeeResponse:
+    results: List[EmployeeResponse]
+    total_count: int = 0
 
 
 @dataclass

@@ -6,7 +6,8 @@ from sqlalchemy import (
     Integer, 
     String, 
     Text,
-    Float
+    Float,
+    JSON
 )
 from sqlalchemy.orm import (
     relationship,
@@ -67,12 +68,14 @@ class Employee(Base):
         db.add(instance)
         db.commit()
         db.refresh(instance)
+        db.close()
         return instance
 
     def remove_matches(self) -> None:
         db = next(get_db())
         db.query(EmployeeOfferMatch).filter(EmployeeOfferMatch.employee_id==self.id).delete()
         db.commit()
+        db.close()
 
 
 class Resume(Base):
@@ -94,3 +97,17 @@ class EmployeeOfferMatch(Base):
     
     offer_uuid = Column(UUID(as_uuid=True), nullable=False)
     match_ratio = Column(Float, nullable=False)
+
+
+class JobOffer(Base):
+    __tablename__ = "joboffers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    offer_uuid = Column(UUID(as_uuid=True), nullable=False)
+    title = Column(Text)
+    skills = Column(JSON)
+    url = Column(Text)
+    category = Column(Integer)
+    platform = Column(Integer)
+    lang = Column(Text)
+    description = Column(Text)

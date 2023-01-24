@@ -77,7 +77,7 @@ def login(user_data: OAuth2PasswordRequestForm = Depends(), db: Session=Depends(
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session=Depends(get_db)
+    db: Session=Depends(get_db), token: str = Depends(oauth2_scheme)
 ) -> UserResponse:
     try:
         payload = jwt.decode(
@@ -97,7 +97,6 @@ async def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        
+      
     user = db.query(User).filter(User.email==token_data.sub).first()
     return UserResponse.from_db_instance(user)
- 

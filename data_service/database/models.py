@@ -39,7 +39,7 @@ class MongoDocumentBase:
         if skip is not None and not find_one:
             data = data.skip(skip)
         if limit is not None and not find_one:
-            data = data.limit(limit)    
+            data = data.limit(limit)  
         # if nothing has been found, return None
         if data is None:
             return
