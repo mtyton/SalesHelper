@@ -23,9 +23,9 @@ class NofluffjobsSpider(
     name = 'nofluffjobs'
     allowed_domains = ['nofluffjobs.com']
     start_urls = [
-        # "https://nofluffjobs.com/pl/backend",
-        #"https://nofluffjobs.com/pl/frontend",
-        # "https://nofluffjobs.com/pl/fullstack",
+        "https://nofluffjobs.com/pl/backend",
+        "https://nofluffjobs.com/pl/frontend",
+        "https://nofluffjobs.com/pl/fullstack",
         "https://nofluffjobs.com/pl/mobile",
     ]
 

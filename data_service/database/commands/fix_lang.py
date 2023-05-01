@@ -4,6 +4,7 @@ from database.db import conn
 
 
 if __name__ == "__main__":
+    raise RuntimeError("This script should not be launched more than one time!")
     elems = []
     for elem in conn.raw_data.find({}):
         lang = detect_description_language(elem["description"])

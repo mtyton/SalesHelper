@@ -27,7 +27,6 @@ class MongoDocumentBase:
             raise ValueError(f"Unknown collection name: {self.collection_name} for MongoDB")
         return getattr(conn, self.collection_name)
 
-    # TODO - add skip, limit test
     def find(
         self, query: Dict[str, Any], find_one: bool = False,
         skip: int = None, limit: int = None

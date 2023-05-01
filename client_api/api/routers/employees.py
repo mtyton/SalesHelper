@@ -51,7 +51,6 @@ def get_employees_list(
             func.count(Employee.id)
         ).filter(Employee.category==numerical_category)
     
-    print(db.execute(count_query).first()[0])
     response = WrappedEmployeeResponse(
         results=[EmployeeResponse.from_db_instance(d) for d in data],
         total_count=db.execute(count_query).first()[0]
